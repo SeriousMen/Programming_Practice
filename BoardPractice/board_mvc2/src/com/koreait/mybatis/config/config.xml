@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd"><!--DTD설정  -->
+
+<configuration>
+	<typeAliases><!--타입을 지정할 때마다 아래 명칭을 다쓰는 것을 불편하니까 별칭(alias)을 따로 여기에 등록해줘서 읽을 수 있도록한다.  -->
+		<typeAlias type="com.koreait.app.member.vo.MemberVO" alias ="memberVO"/>
+		<typeAlias type="com.koreait.app.board.vo.BoardVO" alias ="boardVO"/>
+		<typeAlias type="com.koreait.app.board.vo.FilesVO" alias ="filesVO"/>
+		<typeAlias type="com.koreait.app.board.vo.BoardReplyVO" alias ="boardReplyVO"/>
+	</typeAliases>
+	<environments default="development">
+		<environment id="development">
+			<transactionManager type="JDBC"/>
+			<dataSource type="POOLED"> <!--커넥션 풀이라 type을 POOLED로 하고 커넥션설정 -->
+				<property name="driver" value="oracle.jdbc.OracleDriver"/>
+				<property name="url" value="jdbc:oracle:thin:@localhost:1521:XE"/>
+				<property name="username" value="hr"/>
+				<property name="password" value="hr"/>
+			</dataSource>
+			
+		</environment>
+	</environments>
+	
+	<mappers>
+		<mapper resource ="com/koreait/mybatis/sql/member.xml"/><!--꼭 만든 메퍼파일을 여기에 등록해줘야 찾아간다. -->
+		<mapper resource ="com/koreait/mybatis/sql/board.xml"/>
+		<mapper resource ="com/koreait/mybatis/sql/files.xml"/>
+	</mappers>
+</configuration>

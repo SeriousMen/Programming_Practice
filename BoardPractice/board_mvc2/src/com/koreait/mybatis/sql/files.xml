@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>	
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http//mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--DTD 설정 -->
+
+<!--
+	파라미터로 받은 값에 접근할 때에는 #{} 또는 ${}를 사용하여 가져온다.
+	1. #{} : 받아온 파라미터의 타입에 상관없이 String 타입으로 변경된다. 사용자가 직접 입력한 값에 사용하는 것에 좋다.(보안에 유리하다)
+	2. ${} : 받아온 파라미터의 타입을 그대로 유지한다. 사용자가 직접 입력한 값을 전달받을 때에는 사용하지 않는 것이 좋다.(쿼리 주입때문에 보안이 취약하다.)
+			 테이블이나 컬럼명을 파라미터로 받을 때 사용한다. (동적 쿼리 - spring framework에서 배우자!)
+  -->
+	
+<mapper namespace ="Files">
+	<insert id="insertFile" parameterType ="filesVO">
+		INSERT INTO TABLE_FILES VALUES(#{fileName}, #{boardNum})
+	</insert>
+	
+	<select id ="getFileList" parameterType="_int" resultType="filesVO">
+		SELECT * FROM TABLE_FILES WHERE BOARDNUM = #{boardNum}	
+	</select>
+	
+	<delete id="deleteFile" parameterType="_int">
+		DELETE FROM TABLE_FILES WHERE BOARDNUM = #{boardNum}
+	</delete>
+</mapper>

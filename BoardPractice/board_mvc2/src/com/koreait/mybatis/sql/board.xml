@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>	
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http//mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--DTD 설정 -->
+
+<!--
+	파라미터로 받은 값에 접근할 때에는 #{} 또는 ${}를 사용하여 가져온다.
+	1. #{} : 받아온 파라미터의 타입에 상관없이 String 타입으로 변경된다. 사용자가 직접 입력한 값에 사용하는 것에 좋다.(보안에 유리하다)
+	2. ${} : 받아온 파라미터의 타입을 그대로 유지한다. 사용자가 직접 입력한 값을 전달받을 때에는 사용하지 않는 것이 좋다.(쿼리 주입때문에 보안이 취약하다.)
+			 테이블이나 컬럼명을 파라미터로 받을 때 사용한다. (동적 쿼리 - spring framework에서 배우자!)
+  -->
+		<!--FROM -> WHERE ->SELECT ->ORDER BY 순으로 우선순위  -->
+		<!--ROWNUM은 WHERE절에 의해 추출된 DATA SET에 ROW 단위로 붙는 순번이다.(자료의 순서를 다른 목적으로 이용하고자할 때 사용한다.) -->
+		<!--1. 게시글을 최신 순으로 가져오기 위해서 내림차순 정렬을하고
+			2. 내림차순 정렬된 각 행에 ROWNUM을 사용하여 번호를 1부터 순서대로 붙여준다.
+			3. ROWNUM은 반드시 1부터 시작되어야 하기 때문에 모든 ROWNUM이 붙은 테이블로 부터
+			4. WHERE절을 사용하여 필요한 게시글 정보만 조회한다.
+			  -->
+		<!--
+			※ ROWNUM은 항상 1부터 시작한다. 만약 11이상인 ROWNUM을 가져오기 위해서는 1부터 붚어있는 테이블에서 조회가 가능하다. 그래서 1부터 다 가져오고 그중에서 골라서 가져온다.
+		  -->
+<mapper namespace ="Board">
+	<select id="listAll" parameterType = "map" resultType = "boardVO">
+		SELECT *FROM
+		 (SELECT ROWNUM R, D.* FROM 
+		(SELECT *FROM TABLE_BOARD ORDER BY BOARDNUM DESC) D) B 
+		WHERE B.R BETWEEN #{startRow} AND #{endRow}
+			
+	</select>
+	<select id="getBoardCnt"  resultType = "_int">
+		SELECT COUNT(*) FROM TABLE_BOARD
+	</select>
+	
+	<update id="updateReadCount" parameterType="_int">
+		UPDATE TABLE_BOARD 
+		SET	READCOUNT =READCOUNT +1
+		WHERE BOARDNUM = #{boardNum}
+	</update>
+	
+	<insert id="insertBoard" parameterType="boardVO">
+		INSERT INTO TABLE_BOARD
+		VALUES (BOARD_SEQ.NEXTVAL, #{boardTitle},#{boardContent},#{boardId},SYSDATE,0)
+	</insert>
+	
+	<select id="getDetail" parameterType="_int" resultType="boardVO">
+		SELECT * FROM TABLE_BOARD WHERE BOARDNUM = #{boardNum}
+	</select>
+	
+	<update id = "updateBoard" parameterType="boardVO">
+		UPDATE TABLE_BOARD
+		SET BOARDTITLE = #{boardTitle},BOARDCONTENT=#{boardContent}
+		WHERE BOARDNUM =#{boardNum}
+	</update>
+	
+	<delete id ="deleteBoard" parameterType ="_int">
+		DELETE TABLE_BOARD
+		WHERE BOARDNUM = #{boardNum}
+	</delete>
+	
+	<select id ="getBoardNum" resultType="_int">
+		SELECT BOARD_SEQ.CURRVAL FROM DUAL	
+	</select>
+	
+	<!--댓글 -->
+	<insert id="insertReply" parameterType="boardReplyVO">
+		INSERT INTO TABLE_REPLY 
+		VALUES(REPLY_SEQ.NEXTVAL, #{boardNum}, #{memberId}, #{replyContent})	
+	</insert>
+	
+	<select id="getReplyList" parameterType="_int" resultType="boardReplyVO">
+		SELECT * FROM TABLE_REPLY WHERE BOARDNUM = #{boardNum} ORDER BY REPLYNUM DESC
+	</select>
+	
+	<delete id="deleteReply" parameterType="_int">
+		DELETE FROM TABLE_REPLY WHERE REPLYNUM = #{replyNum}
+	</delete>
+	
+	<update id="updateReply" parameterType="boardReplyVO">
+		UPDATE TABLE_REPLY 
+		SET REPLYCONTENT = #{replyContent} 
+		WHERE REPLYNUM = #{replyNum}
+	</update>
+
+</mapper>
